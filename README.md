@@ -1,7 +1,7 @@
 ## サーバ起動
 
 ```
-npx ts-node server.ts
+npm run build
 ```
 
 ## prettier
