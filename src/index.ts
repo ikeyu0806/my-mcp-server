@@ -42,6 +42,7 @@ server.tool(
   },
 )
 
+// こんなのMCPでやるなって話ですがお試し実装なので
 server.tool(
   'clean_desktop_files',
   'ローカルファイルのデスクトップファイルを削除する',
@@ -66,6 +67,7 @@ server.tool(
   },
 )
 
+// こんなのMCPでやるなって話ですがお試し実装なので
 server.tool(
   'docker_prune',
   'Dockerの不要なデータを削除する',
