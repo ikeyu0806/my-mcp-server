@@ -19,6 +19,6 @@ nvm install node
 プロジェクト作成
 ```
 npm init -y
-npm install typescript @types/node ts-node express @types/express cors @types/cors prettier
+npm install typescript
 npx tsc --init
 ```
