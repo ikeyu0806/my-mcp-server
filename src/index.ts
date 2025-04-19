@@ -7,15 +7,17 @@ import { z } from 'zod'
 
 // Create an MCP server
 const server = new McpServer({
-  name: 'Demo',
+  name: 'MyMCPServer',
   version: '1.0.0',
 })
 
+// SDKのREADMEにあったサンプル
 // Add an addition tool
 server.tool('add', { a: z.number(), b: z.number() }, async ({ a, b }) => ({
   content: [{ type: 'text', text: String(a + b) }],
 }))
 
+// SDKのREADMEにあったサンプル
 // Add a dynamic greeting resource
 server.resource(
   'greeting',
@@ -29,10 +31,6 @@ server.resource(
     ],
   }),
 )
-
-// Start receiving messages on stdin and sending messages on stdout
-// const transport = new StdioServerTransport()
-// server.connect(transport)
 
 async function main() {
   const transport = new StdioServerTransport()
