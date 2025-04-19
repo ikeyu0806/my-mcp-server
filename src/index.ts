@@ -8,6 +8,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import os from 'os'
 import trash from 'trash'
+import { exec } from 'child_process'
 
 // Create an MCP server
 const server = new McpServer({
@@ -24,8 +25,8 @@ server.tool('add', { a: z.number(), b: z.number() }, async ({ a, b }) => ({
 server.tool(
   'fetch_it_news',
   'ITニュースを収集する',
-  { target: z.string() },
-  async ({ target }) => {
+  {},
+  async () => {
     const hotentryData = await fetch('https://b.hatena.ne.jp/hotentry/it').then(
       (res) => res.text(),
     )
@@ -42,10 +43,10 @@ server.tool(
 )
 
 server.tool(
-  'clean_files',
-  'ローカルファイルを削除する',
-  { target: z.string() },
-  async ({ target }) => {
+  'clean_desktop_files',
+  'ローカルファイルのデスクトップファイルを削除する',
+  {},
+  async () => {
     const desktopPath = path.join(os.homedir(), 'Desktop')
 
     const files = await fs.readdir(desktopPath)
@@ -59,6 +60,34 @@ server.tool(
         {
           type: 'text',
           text: '削除しました',
+        },
+      ],
+    }
+  },
+)
+
+server.tool(
+  'docker_prune',
+  'Dockerの不要なデータを削除する',
+  {},
+  async () => {
+    exec('docker system prune -f', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`エラー: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`標準エラー: ${stderr}`);
+        return;
+      }
+      console.log(`標準出力: ${stdout}`);
+    })
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: 'Dockerの不要なデータを削除しました',
         },
       ],
     }
