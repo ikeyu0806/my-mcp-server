@@ -19,6 +19,7 @@
     "@modelcontextprotocol/sdk": "^1.10.1",
     "@types/node": "^22.14.1",
     "prettier": "^3.5.3",
+    "trash": "^9.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "zod": "^3.24.3"
