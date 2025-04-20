@@ -21,15 +21,15 @@ const server = new McpServer({
 server.tool(
   'fetch_news',
   'ニュースを収集する',
-  { query : z.string() },
+  { query: z.string() },
   async ({ query }) => {
-    const now = new Date();
-    now.setDate(now.getDate() - 1);
-  
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0始まり
-    const day = String(now.getDate()).padStart(2, '0');
-  
+    const now = new Date()
+    now.setDate(now.getDate() - 1)
+
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0') // 月は0始まり
+    const day = String(now.getDate()).padStart(2, '0')
+
     const from = `${year}-${month}-${day}`
 
     const endpoint = `https://newsapi.org/v2/everything?q=${query}&from=${from}&sortBy=popularity&apiKey=${process.env.NEWS_API_KEY}`
@@ -79,63 +79,57 @@ server.tool(
 )
 
 // こんなのMCPでやるなって話ですがお試し実装なので
-server.tool(
-  'docker_prune',
-  'Dockerの不要なデータを削除する',
-  {},
-  async () => {
-    exec('docker system prune -f', (error, stdout, stderr) => {
-      if (error) {
-        console.error(`エラー: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.error(`標準エラー: ${stderr}`);
-        return;
-      }
-      console.log(`標準出力: ${stdout}`);
-    })
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Dockerの不要なデータを削除しました',
-        },
-      ],
+server.tool('docker_prune', 'Dockerの不要なデータを削除する', {}, async () => {
+  exec('docker system prune -f', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`エラー: ${error.message}`)
+      return
     }
-  },
-)
-
-server.tool(
-  'get_it_hotentry',
-  'ITのホットエントリを取得する',
-  {},
-  async () => {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    
-    await page.goto('https://b.hatena.ne.jp/hotentry/it')
-    
-    const entries = await page.$$eval('h3.entrylist-contents-title a', elements =>
-        elements.map(el => ({
-          title: el.textContent ? el.textContent.trim() : '',
-          href: el.href
-        }))
-    )
-
-    const text_entries = entries.map(entry => `${entry.title} ${entry.href}`).join('\n')
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: text_entries,
-        },
-      ],
+    if (stderr) {
+      console.error(`標準エラー: ${stderr}`)
+      return
     }
-  },
-)
+    console.log(`標準出力: ${stdout}`)
+  })
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: 'Dockerの不要なデータを削除しました',
+      },
+    ],
+  }
+})
+
+server.tool('get_it_hotentry', 'ITのホットエントリを取得する', {}, async () => {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+
+  await page.goto('https://b.hatena.ne.jp/hotentry/it')
+
+  const entries = await page.$$eval(
+    'h3.entrylist-contents-title a',
+    (elements) =>
+      elements.map((el) => ({
+        title: el.textContent ? el.textContent.trim() : '',
+        href: el.href,
+      })),
+  )
+
+  const text_entries = entries
+    .map((entry) => `${entry.title} ${entry.href}`)
+    .join('\n')
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: text_entries,
+      },
+    ],
+  }
+})
 
 async function main() {
   const transport = new StdioServerTransport()
