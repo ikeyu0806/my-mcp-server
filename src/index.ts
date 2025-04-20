@@ -54,6 +54,30 @@ server.tool(
 )
 
 server.tool(
+  'fetch_webpage',
+  '与えられたURLにGETリクエストを送ってページのmain要素を取得する',
+  { url: z.string() },
+  async ({ url }) => {
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
+
+    const mainHTML = await page.$eval('main', (el) => el.innerHTML)
+
+    await browser.close()
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `${url}の要素を取得しました。${mainHTML}`,
+        },
+      ],
+    }
+  },
+)
+
+server.tool(
   'clean_desktop_files',
   'ローカルファイルのデスクトップファイルを削除する',
   {},
