@@ -11,6 +11,7 @@ import trash from 'trash'
 import { exec } from 'child_process'
 import axios from 'axios'
 import puppeteer from 'puppeteer'
+import { Client } from "@notionhq/client"
 
 // Create an MCP server
 const server = new McpServer({
@@ -148,6 +149,49 @@ server.tool('get_it_hotentry', 'ITのホットエントリを取得する', {}, 
       {
         type: 'text',
         text: text_entries,
+      },
+    ],
+  }
+})
+
+// notion操作Tool
+const notion = new Client({
+  auth: process.env.NOTION_TOKEN,
+})
+
+async function getPageContent(pageId: string) {
+  // ブロックを取得（ページの中身）
+  const blocks = []
+  let cursor = undefined
+
+  do {
+    const response = await notion.blocks.children.list({
+      block_id: pageId,
+      start_cursor: cursor,
+    })
+
+    blocks.push(...response.results)
+    cursor = response.has_more ? response.next_cursor : undefined
+  } while (cursor)
+
+  return blocks
+}
+
+server.tool('get_notion_page', 'Notionのページを取得する', { page_id: z.string() }, async ({page_id}) => {
+  let result = [] as any[]
+  getPageContent(page_id)
+  .then((blocks) => {
+    result.push(blocks)
+  })
+  .catch(console.error)
+
+  const result_text = result.join('\n')
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `${page_id}の内容を取得しました。${result_text}`,
       },
     ],
   }

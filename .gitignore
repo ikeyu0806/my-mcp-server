@@ -1,4 +1,5 @@
 node_modules
 build
 develop.js
+develop.ts
 mcp.json
