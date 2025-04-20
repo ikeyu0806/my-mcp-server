@@ -9,6 +9,7 @@ import path from 'path'
 import os from 'os'
 import trash from 'trash'
 import { exec } from 'child_process'
+import axios from 'axios'
 
 // Create an MCP server
 const server = new McpServer({
@@ -23,19 +24,34 @@ server.tool('add', { a: z.number(), b: z.number() }, async ({ a, b }) => ({
 }))
 
 server.tool(
-  'fetch_it_news',
-  'ITニュースを収集する',
-  {},
-  async () => {
-    const hotentryData = await fetch('https://b.hatena.ne.jp/hotentry/it').then(
-      (res) => res.text(),
-    )
+  'fetch_news',
+  'ニュースを収集する',
+  { query : z.string() },
+  async ({ query }) => {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+  
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0始まり
+    const day = String(now.getDate()).padStart(2, '0');
+  
+    const from = `${year}-${month}-${day}`
+
+    const endpoint = `https://newsapi.org/v2/everything?q=${query}&from=${from}&sortBy=popularity&apiKey=${process.env.NEWS_API_KEY}`
+    const response = await axios.get(endpoint)
+
+    const articles = response.data.articles
+    const contents = articles
+      .map((article: { title: string; url: string }) => {
+        return `${article.title} ${article.url}`
+      })
+      .join('\n')
 
     return {
       content: [
         {
           type: 'text',
-          text: hotentryData,
+          text: `${query}のニュースを取得しました。${contents}`,
         },
       ],
     }
