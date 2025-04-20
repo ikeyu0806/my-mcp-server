@@ -1,6 +1,6 @@
 import {
   McpServer,
-  ResourceTemplate,
+  // ResourceTemplate,
 } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
@@ -10,6 +10,7 @@ import os from 'os'
 import trash from 'trash'
 import { exec } from 'child_process'
 import axios from 'axios'
+import puppeteer from 'puppeteer'
 
 // Create an MCP server
 const server = new McpServer({
@@ -100,6 +101,36 @@ server.tool(
         {
           type: 'text',
           text: 'Dockerの不要なデータを削除しました',
+        },
+      ],
+    }
+  },
+)
+
+server.tool(
+  'get_it_hotentry',
+  'ITのホットエントリを取得する',
+  {},
+  async () => {
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    
+    await page.goto('https://b.hatena.ne.jp/hotentry/it')
+    
+    const entries = await page.$$eval('h3.entrylist-contents-title a', elements =>
+        elements.map(el => ({
+          title: el.textContent ? el.textContent.trim() : '',
+          href: el.href
+        }))
+    )
+
+    const text_entries = entries.map(entry => `${entry.title} ${entry.href}`).join('\n')
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: text_entries,
         },
       ],
     }
