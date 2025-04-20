@@ -11,7 +11,7 @@ import trash from 'trash'
 import { exec } from 'child_process'
 import axios from 'axios'
 import puppeteer from 'puppeteer'
-import { Client } from "@notionhq/client"
+import { Client } from '@notionhq/client'
 
 // Create an MCP server
 const server = new McpServer({
@@ -177,25 +177,30 @@ async function getPageContent(pageId: string) {
   return blocks
 }
 
-server.tool('get_notion_page', 'Notionのページを取得する', { page_id: z.string() }, async ({page_id}) => {
-  let result = [] as any[]
-  getPageContent(page_id)
-  .then((blocks) => {
-    result.push(blocks)
-  })
-  .catch(console.error)
+server.tool(
+  'get_notion_page',
+  'Notionのページを取得する',
+  { page_id: z.string() },
+  async ({ page_id }) => {
+    let result = [] as any[]
+    getPageContent(page_id)
+      .then((blocks) => {
+        result.push(blocks)
+      })
+      .catch(console.error)
 
-  const result_text = result.join('\n')
+    const result_text = result.join('\n')
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: `${page_id}の内容を取得しました。${result_text}`,
-      },
-    ],
-  }
-})
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `${page_id}の内容を取得しました。${result_text}`,
+        },
+      ],
+    }
+  },
+)
 
 async function main() {
   const transport = new StdioServerTransport()
