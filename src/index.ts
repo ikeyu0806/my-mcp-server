@@ -17,12 +17,6 @@ const server = new McpServer({
   version: '1.0.0',
 })
 
-// SDKのREADMEにあったサンプル
-// Add an addition tool
-server.tool('add', { a: z.number(), b: z.number() }, async ({ a, b }) => ({
-  content: [{ type: 'text', text: String(a + b) }],
-}))
-
 server.tool(
   'fetch_news',
   'ニュースを収集する',
@@ -110,21 +104,6 @@ server.tool(
       ],
     }
   },
-)
-
-// SDKのREADMEにあったサンプル
-// Add a dynamic greeting resource
-server.resource(
-  'greeting',
-  new ResourceTemplate('greeting://{name}', { list: undefined }),
-  async (uri, { name }) => ({
-    contents: [
-      {
-        uri: uri.href,
-        text: `Hello, ${name}!`,
-      },
-    ],
-  }),
 )
 
 async function main() {
