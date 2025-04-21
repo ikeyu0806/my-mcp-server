@@ -1,6 +1,7 @@
 ## サーバ起動
 
 ```
+npm install
 npm run build
 node ./build/index.js
 ```
